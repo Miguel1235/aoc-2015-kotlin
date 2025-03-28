@@ -1,17 +1,13 @@
 fun main() {
-    fun part1(input: List<String>): Int {
-        return input.size
+    val part1 = { input: List<Char> -> input.fold(0) { acc, c -> acc + if (c == '(') 1 else -1 } }
+    val part2 = { input: List<Char> ->
+        input.runningFold(0) { acc, c -> acc + if (c == '(') 1 else -1 }.indexOfFirst { it == -1 }
     }
 
-    fun part2(input: List<String>): Int {
-        return input.size
-    }
+    val testInput = readOneLineInput("Day01_test")
+    check(part1(testInput) == 3)
 
-    // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day01_test")
-    check(part1(testInput) == 1)
-
-    val input = readInput("Day01")
-    part1(input).println()
-    part2(input).println()
+    val input = readOneLineInput("Day01")
+    check(part1(input) == 74)
+    check(part2(input) == 1795)
 }
