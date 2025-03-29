@@ -1,42 +1,44 @@
 fun main() {
-    data class Dimensions(val l: Long, val w: Long, val h: Long)
+    data class Dimensions(val l: Long, val w: Long, val h: Long) {
+        val volume: Long
+            get() = l * w * h
+        val area: Long
+            get() {
+                val base = l * w
+                val side = w * h
+                val front = h * l
+                return 2 * base + 2 * side + 2 * front
+            }
+        val ribbon: Long
+            get() {
+                val sideP = 2 * w + 2 * h
+                val frontP = 2 * l + 2 * h
+                val baseP = 2 * w + 2 * l
 
-    fun part1(dimensions: List<Dimensions>): Long {
-        return dimensions.fold(0L) { acc, d ->
-            val (l,w,h) = d
+                return listOf(sideP, frontP, baseP).min()
+            }
 
-            val base = l*w
-            val side = w*h
-            val front = h*l
+        val minSide: Long
+            get() {
+                val base = l * w
+                val side = w * h
+                val front = h * l
 
-            val area = 2*base + 2*side + 2*front
-            val minSide = listOf(base, side, front).min()
-            acc + (area+minSide)
-        }
+                return listOf(base, side, front).min()
+            }
     }
 
-    fun part2(dimensions: List<Dimensions>): Long {
-        return dimensions.fold(0L) { acc, d ->
-            val (l,w,h) = d
-
-            val sideP = 2*w + 2*h
-            val frontP = 2*l+2*h
-            val baseP = 2*w+2*l
-
-            val ribbon = listOf(sideP, frontP, baseP).min()
-            val volume = w*h*l
-            acc + (ribbon + volume)
-        }
-    }
+    val part1 = { dimensions: List<Dimensions> -> dimensions.fold(0L) { acc, d -> acc + (d.area + d.minSide) } }
+    val part2 = { dimensions: List<Dimensions> -> dimensions.fold(0L) { acc, d -> acc + (d.ribbon + d.volume) } }
 
 
     fun parseInput(input: List<String>): List<Dimensions> {
         val dimRegex = Regex("""(\d+)x(\d+)x(\d+)""")
 
         return buildList {
-            for(line in input) {
-                val (l,w,h) = dimRegex.find(line)!!.groupValues.takeLast(3).map { it.toLong() }
-                add(Dimensions(l,w,h))
+            for (line in input) {
+                val (l, w, h) = dimRegex.find(line)!!.groupValues.takeLast(3).map { it.toLong() }
+                add(Dimensions(l, w, h))
             }
         }
     }
