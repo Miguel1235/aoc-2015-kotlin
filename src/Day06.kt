@@ -1,3 +1,5 @@
+import kotlin.math.max
+
 enum class Action {
     TURN_ON,
     TURN_OFF,
@@ -24,45 +26,28 @@ fun main() {
         }
     }
 
-    fun prettyPrint(grid: List<List<Int>>) {
-        println(grid)
-        for (row in grid.indices) {
-            val cols = grid[row].indices
-            for (col in cols) {
-                print(grid[row][col])
-            }
-            println()
-        }
-    }
-
-    fun updateGrid(grid: List<MutableList<Int>>, instruction: Instruction, isPart2: Boolean = false): List<MutableList<Int>> {
+    fun updateGrid(
+        grid: List<MutableList<Int>>,
+        instruction: Instruction,
+        isPart2: Boolean = false
+    ): List<MutableList<Int>> {
         val (rs, re) = instruction.row
         val (cs, ce) = instruction.col
 
         for (r in rs until re + 1) {
             for (c in cs until ce + 1) {
+                if (isPart2) {
+                    when (instruction.action) {
+                        Action.TURN_ON -> grid[r][c] += 1
+                        Action.TURN_OFF -> grid[r][c] = max(grid[r][c] - 1, 0)
+                        Action.TOGGLE -> grid[r][c] += 2
+                    }
+                    continue
+                }
                 when (instruction.action) {
-                    Action.TURN_ON -> {
-                        if(isPart2) {
-                            grid[r][c] += 1
-                        } else {
-                            grid[r][c] = 1
-                        }
-                    }
-                    Action.TURN_OFF -> {
-                        if(isPart2 && grid[r][c] > 0) {
-                            grid[r][c] -= 1
-                        } else {
-                            grid[r][c] = 0
-                        }
-                    }
-                    Action.TOGGLE -> {
-                        if(isPart2) {
-                            grid[r][c] += 2
-                        } else {
-                            grid[r][c] = if (grid[r][c] == 1) 0 else 1
-                        }
-                    }
+                    Action.TURN_ON -> grid[r][c] = 1
+                    Action.TURN_OFF -> grid[r][c] = 0
+                    Action.TOGGLE -> grid[r][c] = if (grid[r][c] == 1) 0 else 1
                 }
             }
         }
@@ -70,24 +55,17 @@ fun main() {
     }
 
     fun part(instructions: List<Instruction>, isPart2: Boolean = false): Int {
-        var grid = List(1000) {
-            MutableList(1000) {
-                0
-            }
-        }
-
+        var grid = List(1000) { MutableList(1000) { 0 } }
         for (instruction in instructions) {
             grid = updateGrid(grid, instruction, isPart2)
         }
-
         return grid.flatten().sumOf { it }
     }
-
-//    val testInput = parseInput(readInput("Day06_test"))
-//    part1(testInput)
+    val testInput = parseInput(readInput("Day06_test"))
+    check(part(testInput) == 8)
+    check(part(testInput, true) == 20)
 
     val input = parseInput(readInput("Day06"))
     check(part(input) == 377891)
-    part(input, true).println()
-
+    check(part(input, true) == 14110788)
 }
