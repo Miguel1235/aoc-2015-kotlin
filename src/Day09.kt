@@ -1,6 +1,5 @@
 fun main() {
     data class City(val name: String)
-
     class Graph(input: List<Triple<City, City, Int>>) {
         val adjacencyMap = mutableMapOf<City, MutableMap<City, Int>>()
 
@@ -31,15 +30,6 @@ fun main() {
 
         fun findLongestPath(): Int {
             val allCities = adjacencyMap.keys.toSet()
-
-            println(
-                buildList {
-                    for(startingCity in allCities) {
-                        add(findLongestPath(startingCity))
-                    }
-                }
-            )
-
             return buildList {
                 for(startingCity in allCities) {
                     add(findLongestPath(startingCity))
@@ -110,11 +100,10 @@ fun main() {
         }
     }
 
-//    val testInput = parseInput(readInput("Day09_test"))
-//    val testGraph = Graph(testInput)
-//    check(testGraph.findShortestPath() == 605)
-//    check(testGraph.findLongestPath() == 982)
-
+    val testInput = parseInput(readInput("Day09_test"))
+    val testGraph = Graph(testInput)
+    check(testGraph.findShortestPath() == 605)
+    check(testGraph.findLongestPath() == 982)
 
     val input = parseInput(readInput("Day09"))
     val graph = Graph(input)
