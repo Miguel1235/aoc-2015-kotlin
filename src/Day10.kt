@@ -1,30 +1,28 @@
 fun main() {
     fun obtainNewString(input: String): String {
         val inputList = input.toList().map { it.toString() }
-
         var current = inputList.first()
         var counter = 0
-        val result = mutableListOf<String>()
 
-        for(char in inputList) {
-            if(current == char) {
-                counter++
-                continue
+        return buildString {
+            for(char in inputList) {
+                if(current == char) {
+                    counter++
+                    continue
+                }
+                append(counter.toString())
+                append(current)
+                current = char
+                counter = 1
             }
-            result.add(counter.toString())
-            result.add(current)
-            current = char
-            counter = 1
+            append(counter.toString())
+            append(current)
         }
-        result.add(counter.toString())
-        result.add(current)
-
-        return result.joinToString("")
     }
 
-    fun part1(input: String): Int {
+    fun part1(input: String, times: Int = 40): Int {
         var result = input
-        repeat(40) {
+        repeat(times) {
             result = obtainNewString(result)
         }
         return result.length
@@ -35,4 +33,5 @@ fun main() {
 
     val input = readInput("Day10").first()
     check(part1(input) == 252594)
+    check(part1(input, 50) == 3579328)
 }
