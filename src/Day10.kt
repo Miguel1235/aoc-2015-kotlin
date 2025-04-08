@@ -1,10 +1,10 @@
 fun main() {
-    fun obtainNewString(input: String): String {
+    fun generateNextLookAndSayTerm(input: String): String {
         val inputList = input.toList().map { it.toString() }
-        var current = inputList.first()
-        var counter = 0
 
         return buildString {
+            var current = inputList.first()
+            var counter = 0
             for(char in inputList) {
                 if(current == char) {
                     counter++
@@ -23,7 +23,7 @@ fun main() {
     fun part1(input: String, times: Int = 40): Int {
         var result = input
         repeat(times) {
-            result = obtainNewString(result)
+            result = generateNextLookAndSayTerm(result)
         }
         return result.length
     }
