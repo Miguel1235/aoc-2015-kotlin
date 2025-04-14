@@ -44,19 +44,22 @@ fun main() {
         return fixedArrangement
     }
 
-
-    fun part1(input: List<String>): Int {
-        val hp = obtainHappiness(input)
-        val names = hp.keys.map { it.split("-") }.flatten().toSet().toList()
-        val arrangements = fixedPermutations(permutations(names))
-
-        return arrangements.maxOf { arr ->  arr.sumOf { hp["${it.first}-${it.second}"]!! } }
+    fun part(hp: Map<String, Int>, names: List<String>): Int {
+        return fixedPermutations(permutations(names)).maxOf { arr ->  arr.sumOf { hp.getOrDefault("${it.first}-${it.second}", 0) } }
     }
 
-
     val testInput = readInput("Day13_test")
-    check(part1(testInput) == 330)
+    val hpTest = obtainHappiness(testInput)
+    val namesTest = hpTest.keys.map { it.split("-") }.flatten().toSet().toList()
+
+    check(part(hpTest, namesTest) == 330)
 
     val input = readInput("Day13")
-    check(part1(input) == 618)
+    val hp = obtainHappiness(input)
+    val names = hp.keys.map { it.split("-") }.flatten().toSet().toMutableList()
+
+    check(part(hp, names) == 618)
+    names.add("Miguel")
+    check(part(hp, names) == 601)
+
 }
