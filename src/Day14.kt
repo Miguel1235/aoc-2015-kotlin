@@ -25,29 +25,23 @@ fun main() {
         }
     }
 
-    fun part1(input: List<String>, seconds: Int = 1000): Int {
+    fun part(input: List<String>, seconds: Int = 1000, isPart2: Boolean = false): Int {
         val racers = obtainRacers(input)
         repeat(seconds) {
             racers.forEach { it.move() }
+            if(isPart2) {
+                val maxDistance = racers.maxOf { it.currentDistance }
+                racers.filter { it.currentDistance == maxDistance }.forEach { it.points++ }
+            }
         }
-        return racers.maxOf { it.currentDistance }
-    }
-
-    fun part2(input: List<String>, seconds: Int = 1000): Int {
-        val racers = obtainRacers(input)
-        repeat(seconds) {
-            racers.forEach { it.move() }
-            val maxDistance = racers.maxOf { it.currentDistance }
-            racers.filter { it.currentDistance == maxDistance }.forEach { it.points++ }
-        }
-        return racers.maxOf { it.points }
+        return racers.maxOf { if(isPart2) it.points else it.currentDistance }
     }
 
     val testInput = readInput("Day14_test")
-    check(part1(testInput) == 1120)
-    check(part2(testInput, 1000) == 689)
+    check(part(testInput) == 1120)
+    check(part(testInput, 1000, true) == 689)
 
     val input = readInput("Day14")
-    check(part1(input, 2503) == 2696)
-    check(part2(input, 2503) == 1084)
+    check(part(input, 2503) == 2696)
+    check(part(input, 2503, true) == 1084)
 }
