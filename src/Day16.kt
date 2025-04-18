@@ -1,6 +1,5 @@
 fun main() {
-    fun part1(input: List<String>): Int {
-
+    fun part(input: List<String>, isPart2: Boolean = false): Int {
         data class Sue(
             val number: Int,
             val children: Int?,
@@ -16,8 +15,6 @@ fun main() {
         )
 
         val compoundsRegex = Regex("""(\w+): (\d+)""")
-
-
         val sues = input.mapIndexed { idx, line ->
             val properties = compoundsRegex.findAll(line)
                 .associate { it.groupValues[1] to it.groupValues[2].toInt() }
@@ -50,21 +47,32 @@ fun main() {
             perfumes = 1
         )
 
-        return sues.find {
-            (it.children == sue2Find.children || it.children == null) &&
-                    (it.cats == sue2Find.cats || it.cats == null) &&
-                    (it.samoyeds == sue2Find.samoyeds || it.samoyeds == null) &&
-                    (it.pomeranians == sue2Find.pomeranians || it.pomeranians == null) &&
-                    (it.akitas == sue2Find.akitas || it.akitas == null) &&
-                    (it.vizslas == sue2Find.vizslas || it.vizslas == null) &&
-                    (it.goldfish == sue2Find.goldfish || it.goldfish == null) &&
-                    (it.trees == sue2Find.trees || it.trees == null) &&
-                    (it.cars == sue2Find.cars || it.cars == null) &&
-                    (it.perfumes == sue2Find.perfumes || it.perfumes == null)
-        }!!.number
+       return sues.find {
+           (it.children == sue2Find.children || it.children == null) &&
+                   (it.samoyeds == sue2Find.samoyeds || it.samoyeds == null) &&
+                   (it.akitas == sue2Find.akitas || it.akitas == null) &&
+                   (it.vizslas == sue2Find.vizslas || it.vizslas == null) &&
+                   (it.cars == sue2Find.cars || it.cars == null) &&
+                   (it.perfumes == sue2Find.perfumes || it.perfumes == null) &&
+
+                   if (isPart2) {
+                       ((it.pomeranians != null && it.pomeranians < sue2Find.pomeranians!!) || it.pomeranians == null) &&
+                               ((it.goldfish != null && it.goldfish < sue2Find.goldfish!!) || it.goldfish == null) &&
+                               ((it.cats != null && it.cats > sue2Find.cats!!) || it.cats == null) &&
+                               ((it.trees != null && it.trees > sue2Find.trees!!) || it.trees == null)
+
+                   } else {
+                       (it.pomeranians == sue2Find.pomeranians || it.pomeranians == null) &&
+                               (it.goldfish == sue2Find.goldfish || it.goldfish == null) &&
+                               (it.cats == sue2Find.cats || it.cats == null) &&
+                               (it.trees == sue2Find.trees || it.trees == null)
+                   }
+       }
+           ?.number ?: 0
     }
 
     val input = readInput("Day16")
 
-    check(part1(input) == 373)
+    check(part(input) == 373)
+    check(part(input, true) == 260)
 }
