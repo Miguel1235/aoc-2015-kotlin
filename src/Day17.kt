@@ -1,5 +1,4 @@
 fun main() {
-
     fun obtainAllCombinations(input: List<Int>): List<List<Int>> {
         return buildList {
             for(i in 1..input.size) {
@@ -8,15 +7,12 @@ fun main() {
         }.flatten()
     }
 
-    fun part1(input: List<Int>, liters2Fill: Int): Int {
-        return obtainAllCombinations(input).count { it.sum() == liters2Fill }
-    }
+    val part1 = { input: List<Int>, liters2Fill: Int -> obtainAllCombinations(input).count { it.sum() == liters2Fill } }
 
-    fun part2(input: List<Int>, liters2Fill: Int): Int {
+    val part2 = { input: List<Int>, liters2Fill: Int ->
         val combinations = obtainAllCombinations(input)
-
         val minContainers = combinations.find { it.sum() == liters2Fill }!!.size
-        return combinations.count { it.size == minContainers && it.sum() == liters2Fill }
+        combinations.count { it.size == minContainers && it.sum() == liters2Fill }
     }
 
     val testInput = readInput("Day17_test").map { it.toInt() }
