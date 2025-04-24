@@ -7,11 +7,10 @@ fun main() {
         var attacker = player
         fun fight(): Boolean {
             while (true) {
-                val defender = if(attacker == player) boss else player
-
+                val defender = if (attacker == player) boss else player
                 val damageToDeal = max(attacker.damage - defender.armor, 1)
                 defender.hitPoints -= damageToDeal
-                if(defender.hitPoints <= 0) {
+                if (defender.hitPoints <= 0) {
                     return attacker == player
                 }
                 attacker = defender
@@ -53,8 +52,6 @@ fun main() {
 
             val ringCombinations = mutableListOf<List<Item>>()
 
-            ringCombinations.add(emptyList())
-
             for (ring in rings) {
                 ringCombinations.add(listOf(ring))
             }
@@ -83,7 +80,6 @@ fun main() {
                     }
                 }
             }
-
             return result
         }
     }
@@ -92,31 +88,24 @@ fun main() {
     fun part(isPart2: Boolean = false): Int {
         val shop = Shop()
         val combinations = shop.generateCombinations()
-
-        var minCost = 99999999
+        var minCost = Int.MAX_VALUE
         var maxCost = 0
-        for(combination in combinations) {
+        for (combination in combinations) {
             val totalDamage = combination.sumOf { it.damage }
             val totalArmor = combination.sumOf { it.armor }
             val totalCost = combination.sumOf { it.cost }
 
-            val main = Character("player",100, totalDamage, totalArmor)
-            val boss = Character("boss",104, 8, 1)
+            val main = Character("player", 100, totalDamage, totalArmor)
+            val boss = Character("boss", 104, 8, 1)
 
             val game = Game(main, boss)
-            if(game.fight()) {
-                if(totalCost < minCost) {
-                    minCost = totalCost
-                }
+            if (game.fight()) {
+                minCost = minOf(totalCost, minCost)
             } else {
-                if(maxCost < totalCost) {
-                    maxCost = totalCost
-                }
+                maxCost = maxOf(totalCost, maxCost)
             }
-
         }
-
-        return if(isPart2) maxCost else minCost
+        return if (isPart2) maxCost else minCost
     }
 
     check(part() == 78)
