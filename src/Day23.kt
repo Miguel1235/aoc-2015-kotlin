@@ -1,60 +1,79 @@
-import kotlin.math.max
+enum class Register { A, B }
+enum class InstructionType { HLF, TPL, INC, JMP, JIE, JIO }
 
 fun main() {
-    fun part(input: List<String>, regStart: Int = 0): Long {
-        val basicInstructionsRegex = Regex("""^(hlf|tpl|inc) ([ab])$""")
-        val jmpRegex = Regex("""^jmp ([+-]\d+)$""")
-        val jiRegex = Regex("""^(jio|jie) ([ab]), ([+-]\d+)$""")
+    data class Instruction(
+        val type: InstructionType,
+        val register: Register? = null,
+        val offset: Int? = null
+    )
 
-        var instructionCounter = 0
-        var regA = regStart.toLong()
-        var regB = 0L
-
-        while (instructionCounter < input.size) {
-            val line = input[instructionCounter]
-
-            regA = max(regA, 0)
-            regB = max(regB, 0)
-
-            val basicIns = basicInstructionsRegex.find(line)?.groupValues
-
-            if (basicIns != null) {
-                val (_, op, r) = basicIns
-                when (op) {
-                    "inc" -> if (r == "a") regA++ else regB++
-                    "tpl" -> if (r == "a") regA *= 3 else regB *= 3
-                    "hlf" -> if (r == "a") regA /= 2 else regB /= 2
-                }
-                instructionCounter++
-                continue
-            }
-            val jump = jmpRegex.find(line)?.groupValues
-
-            if (jump != null) {
-                val (_, offset) = jump
-                instructionCounter += offset.toInt()
-                continue
-            }
-
-            val ji = jiRegex.find(line)?.groupValues
-            if (ji != null) {
-                val (_, op, r, offset) = ji
-                val reg = if (r == "a") regA else regB
-
-                if ((op == "jio" && reg == 1L) || (op == "jie" && reg % 2 == 0L)) {
-                    instructionCounter += offset.toInt()
-                    continue
-                }
-            }
-            instructionCounter++
+    fun parseInstruction(line: String): Instruction {
+        val basicMatch = Regex("""^(hlf|tpl|inc) ([ab])$""").find(line)?.groupValues
+        if (basicMatch != null) {
+            val (_, op, r) = basicMatch
+            val register = if (r == "a") Register.A else Register.B
+            val type = InstructionType.valueOf(op.uppercase())
+            return Instruction(type, register)
         }
-        return regB
+
+        val jmpMatch = Regex("""^jmp ([+-]\d+)$""").find(line)?.groupValues
+        if (jmpMatch != null) {
+            val (_, offset) = jmpMatch
+            return Instruction(InstructionType.JMP, offset = offset.toInt())
+        }
+
+        val jiMatch = Regex("""^(jio|jie) ([ab]), ([+-]\d+)$""").find(line)?.groupValues
+        if (jiMatch != null) {
+            val (_, op, r, offset) = jiMatch
+            val register = if (r == "a") Register.A else Register.B
+            val type = InstructionType.valueOf(op.uppercase())
+            return Instruction(type, register, offset.toInt())
+        }
+        throw IllegalArgumentException("Invalid instruction: $line")
+    }
+
+    fun part(instructions: List<Instruction>, aStart: Long = 0L): Long {
+        var instructionPointer = 0
+        val registers = mutableMapOf(Register.A to aStart, Register.B to 0L)
+
+        while (instructionPointer < instructions.size) {
+            val instruction = instructions[instructionPointer]
+            when (instruction.type) {
+                InstructionType.HLF -> {
+                    registers[instruction.register!!] = registers[instruction.register]!! / 2
+                    instructionPointer++
+                }
+                InstructionType.TPL -> {
+                    registers[instruction.register!!] = registers[instruction.register]!! * 3
+                    instructionPointer++
+                }
+                InstructionType.INC -> {
+                    registers[instruction.register!!] = registers[instruction.register]!! + 1
+                    instructionPointer++
+                }
+                InstructionType.JMP -> {
+                    instructionPointer += instruction.offset!!
+                }
+                InstructionType.JIE -> {
+                    val value = registers[instruction.register!!]!!
+                    instructionPointer += if (value % 2 == 0L) instruction.offset!! else 1
+                }
+                InstructionType.JIO -> {
+                    val value = registers[instruction.register!!]!!
+                    instructionPointer += if (value == 1L) instruction.offset!! else 1
+                }
+            }
+        }
+        return registers[Register.B] ?: 0L
     }
 
     val testInput = readInput("Day23_test")
-    check(part(testInput) == 0L)
+    val testInstructions = testInput.map { parseInstruction(it) }
+    check(part(testInstructions) == 0L)
 
     val input = readInput("Day23")
-    check(part(input) == 170L)
-    check(part(input, 1) == 247L)
+    val instructions = input.map { parseInstruction(it) }
+    check(part(instructions) == 170L)
+    check(part(instructions, 1) == 247L)
 }
